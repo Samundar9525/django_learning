@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      .tab-header {
+        background-color: #f2f2f2;
+        padding: 10px 20px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 20px;
+      }
+
+      .tab-content {
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-top: none;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      tr:hover {
+        background-color: #ddd;
+      }
+    form {
+      width: 80%;
+      margin: 0 auto;
+      padding: 10px; /* Decreased padding */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px; /* Decreased margin */
+      font-size: 16px; /* Decreased font size */
+      color: #333;
+      font-weight: bold;
+    }
+
+    /* Styles for input boxes */
+    input[type="number"],
+    input[type="text"],
+    input[type="tel"] {
+      width: calc(100% - 12px);
+      padding: 8px; /* Decreased padding */
+      margin-bottom: 10px; /* Decreased margin */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      transition: border-color 0.3s ease;
+      font-size: 14px; /* Decreased font size */
+    }
+
+    /* Button styles */
+    button[type="submit"] {
+      background-color: #4caf50;
+      color: white;
+      padding: 8px 16px; /* Decreased padding */
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px; /* Decreased margin */
+      font-size: 14px; /* Decreased font size */
+    }
+
+
+      /* Focus state */
+      input[type="number"]:focus,
+      input[type="text"]:focus,
+      input[type="tel"]:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      /* Hover state */
+      input[type="number"]:hover,
+      input[type="text"]:hover,
+      input[type="tel"]:hover {
+        border-color: #999;
+      }
+
+      /* Placeholder text */
+      input[type="number"]::placeholder,
+      input[type="text"]::placeholder,
+      input[type="tel"]::placeholder {
+        color: #999;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #45a049;
+      }
+
+      /* Additional styles for flex container */
+      .flex {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        align-items: center;
+      }
+
+      .flex label {
+        flex: 1;
+        margin-left: 40px;
+        margin-bottom: 20px;
+      }
+
+      .flex input {
+        flex: 2;
+      }
+
+      /* Responsive styling */
+      @media (max-width: 768px) {
+        form {
+          width: 90%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        form {
+          width: 95%;
+        }
+      }
+      .pagination {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .pagination .step-links {
+        display: inline-block;
+      }
+
+      .pagination .step-links a {
+        color: #333;
+        text-decoration: none;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+
+      .pagination .step-links .current {
+        color: #fff;
+        background-color: #007bff;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border: 1px solid #007bff;
+        border-radius: 3px;
+      }
+
+      /* Responsive styling */
+      @media (max-width: 768px) {
+        form {
+          width: 90%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        form {
+          width: 95%;
+        }
+      }
+      .action-buttons {
+        display: flex;
+        align-items: center;
+      }
+
+      .action-buttons button {
+        margin-left: 10px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .action-buttons button:hover {
+        background-color: #0056b3;
+      }
+
+      .action-buttons button:focus {
+        outline: none;
+      }
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+    <script>
+      function showForm(formId) {
+        if (formId === "update") {
+          document.getElementById("update-id").style.display = "block";
+        } else {
+          document.getElementById("update-id").style.display = "none";
+        }
+        document.querySelectorAll("form").forEach((form) => {
+          form.style.display = "none";
+        });
+        document.getElementById(formId).style.display = "block";
+        document.getElementById("header-title").innerHTML =
+          String(formId).charAt(0).toUpperCase() +
+          String(formId).slice(1) +
+          " Employee Record";
+      }
+      function fetchUserData() {
+        var userId = document.getElementById("fetch_id_update").value;
+        console.log(userId);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/fetch_data/${userId}/`, false);
+        xhr.send();
+        if (xhr.status === 200) {
+          dataConatiner = document.getElementById("main-container");
+          dataConatiner.innerHTML = "";
+          dataConatiner.innerHTML = xhr.responseText;
+          console.log(xhr.responseText);
+          showForm("update");
+        } else {
+          alert("User does not exist");
+        }
+      }
+      function deleteUserData() {
+        var userId = document.getElementById("fetch_id_delete").value;
+        console.log(userId);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/delete_User/${userId}/`, false);
+        xhr.send();
+        if (xhr.status === 200) {
+          dataConatiner = document.getElementById("main-container");
+          dataConatiner.innerHTML = "";
+          dataConatiner.innerHTML = xhr.responseText;
+          showForm("delete");
+        } else {
+          alert("User does not exist");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="main-container">
+      <div class="tab-header">
+        <div class="header-content">
+          <h2 id="header-title">Add Employee Record</h2>
+          <div class="action-buttons">
+            <button class="btn-add" onclick="showForm('add')">Add</button>
+            <button class="btn-update" onclick="showForm('update')">
+              Update
+            </button>
+            <button class="btn-delete" onclick="showForm('delete')">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content">
+        <!-- add form  -->
+        <form method="post" id="add">
+          {% csrf_token %}
+          <div class="flex">
+            <label for="id">ID:</label>
+            <input type="number" name="id" id="id" required />
+
+            <label for="first_name">First Name:</label>
+            <input type="text" name="first_name" id="first_name" />
+          </div>
+
+          <div class="flex">
+            <label for="last_name">Last Name:</label>
+            <input type="text" name="last_name" id="last_name" />
+
+            <label for="phone">Phone:</label>
+            <input type="tel" name="phone" id="phone" />
+          </div>
+
+          <div class="flex">
+            <label for="gender">Gender:</label>
+            <input type="text" name="gender" id="gender" />
+
+            <label for="address">Address:</label>
+            <input type="text" name="address" id="address" />
+          </div>
+
+          <div class="flex">
+            <label for="city">City:</label>
+            <input type="text" name="city" id="city" />
+
+            <label for="salary">Salary:</label>
+            <input type="number" name="salary" id="salary" />
+          </div>
+
+          <div class="flex" style="justify-content: flex-end">
+            <button type="submit">Submit</button>
+          </div>
+        </form>
+        <!-- delete form  -->
+        <form id="delete" style="display: none">
+          {% csrf_token %}
+          <div class="flex">
+            <label for="fetch_id">Enter ID:</label>
+            <input
+              type="number"
+              name="fetch_id"
+              id="fetch_id_delete"
+              style="flex: 5"
+              required
+            />
+          </div>
+          <div
+            class="flex action-buttons"
+            style="
+              justify-content: flex-end;
+              margin-left: 10px;
+              margin-top: -10px;
+            "
+          >
+            <button onclick="deleteUserData()">Delete Record</button>
+          </div>
+        </form>
+        <!-- Update form  -->
+
+        <div id="update-id" style="display: none">
+          <div class="flex">
+            <label for="fetch_id">Enter ID:</label>
+            <input
+              type="text"
+              name="fetch_id"
+              id="fetch_id_update"
+              required
+              style="flex: 5"
+            />
+            <div
+              class="flex action-buttons"
+              style="
+                justify-content: flex-end;
+                margin-left: 10px;
+                margin-top: -10px;
+              "
+            >
+              <button onclick="fetchUserData()">Get User</button>
+            </div>
+          </div>
+          <hr />
+        </div>
+        {% if fetchUsersData %}
+        <div>
+          <form
+            method="post"
+            id="update"
+            style="display: none"
+            action="{% url 'acess_management' %}"
+          >
+            {% csrf_token %}
+            <input type="hidden" name="_method" value="PUT" />
+            {% for item in fetchUsersData %}
+            <input type="hidden" name="id" value="{{item.id}}" />
+            <div class="flex">
+              <label for="first_name">First Name:</label>
+              <input
+                type="text"
+                name="first_name"
+                id="first_name"
+                value="{{item.first_name}}"
+              />
+              <label for="last_name">Last Name:</label>
+              <input
+                type="text"
+                name="last_name"
+                id="last_name"
+                value="{{item.last_name}}"
+              />
+            </div>
+
+            <div class="flex">
+              <label for="phone">Phone:</label>
+              <input
+                type="tel"
+                name="phone"
+                id="phone"
+                value="{{item.phone}}"
+              />
+              <label for="gender">Gender:</label>
+              <input
+                type="text"
+                name="gender"
+                id="gender"
+                value="{{item.gender}}"
+              />
+            </div>
+
+            <div class="flex">
+              <label for="address">Address:</label>
+              <input
+                type="text"
+                name="address"
+                id="address"
+                value="{{item.address}}"
+              />
+              <label for="city">City:</label>
+              <input type="text" name="city" id="city" value="{{item.city }}" />
+            </div>
+
+            <div class="flex">
+              <label for="salary">Salary:</label>
+              <input
+                type="text"
+                name="salary"
+                id="salary"
+                style="flex: 5"
+                value="{{item.salary}}"
+              />
+            </div>
+            {% endfor %}
+            <div class="flex" style="justify-content: flex-end">
+              <button type="submit">Update</button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+      <table border="1">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone</th>
+            <th>Gender</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Salary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in usersData %}
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.first_name }}</td>
+            <td>{{ item.last_name }}</td>
+            <td>{{ item.phone }}</td>
+            <td>{{ item.gender }}</td>
+            <td>{{ item.address }}</td>
+            <td>{{ item.city }}</td>
+            <td>{{ item.salary }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <span class="step-links">
+          {% if usersData.has_previous %}
+          <a href="?page=1">&laquo; first</a>
+          <a href="?page={{ usersData.previous_page_number }}">previous</a>
+          {% endif %}
+
+          <span class="current">
+            Page {{ usersData.number }} of {{ usersData.paginator.num_pages }}.
+          </span>
+
+          {% if usersData.has_next %}
+          <a href="?page={{ usersData.next_page_number }}">next</a>
+          <a href="?page={{ usersData.paginator.num_pages }}">last &raquo;</a>
+          {% endif %}
+        </span>
+      </div>
+      {% if success_msg %} {% include 'success_msg.html' %}
+      <script>
+        setTimeout(function () {
+          var successMsg = document.querySelector(".success-container");
+          if (successMsg) {
+            successMsg.style.display = "none";
+            window.location.href = "/users/";
+          }
+        }, 1000);
+      </script>
+      {% endif %}
+    </div>
+  </body>
+</html>
